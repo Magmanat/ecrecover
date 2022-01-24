@@ -1,54 +1,62 @@
+let walletbook = [
+  { Order: "0", Wallet: "0x2F85C00f8ccCAdAfbD4a867D849AfdBb8eD43871" },
+];
+// {Order: "1", Wallet: "yes"}, {Order: "1", Wallet: "yes"},{Order: "1", Wallet: "yes"},{Order: "1", Wallet: "yes"}
+let x = [1];
 App = {
   web3Provider: null,
   contracts: {},
-  account: '0x0',
+  account: "0x0",
   loading: false,
   contractInstance: null,
-  msg: '0x0',
-  signature: '0x0',
+  msg: "0x0",
+  signature: "0x0",
 
   init: () => {
     return App.initWeb3();
   },
-
-  // Addresses Metamask breaking changes
-  // https://medium.com/metamask/https-medium-com-metamask-breaking-change-injecting-web3-7722797916a8
   initWeb3: async () => {
-    if (typeof web3 !== 'undefined') {
+    if (typeof web3 !== "undefined") {
       App.web3Provider = web3.currentProvider;
       web3 = new Web3(web3.currentProvider);
     } else {
-      window.alert("Please connect to Metamask.")
+      window.alert("Please connect to Metamask.");
     }
-    // Modern dapp browsers...
+    // for most modern browsers
     if (window.ethereum) {
       window.web3 = new Web3(ethereum);
       try {
-        // Request account access if needed
+        // request account unlock
         await ethereum.enable();
-        // Acccounts now exposed
-        web3.eth.sendTransaction({/* ... */});
+        // account unlocked
+        web3.eth.sendTransaction({
+          /* ... */
+        });
       } catch (error) {
-        // User denied account access...
+        //User denied access
       }
     }
-    // Legacy dapp browsers...
+    //old browsers
     else if (window.web3) {
       App.web3Provider = web3.currentProvider;
       window.web3 = new Web3(web3.currentProvider);
-      // Acccounts always exposed
-      web3.eth.sendTransaction({/* ... */});
+      //account exposed
+      web3.eth.sendTransaction({
+        /* ... */
+      });
     }
-    // Non-dapp browsers...
+    //Non dapp
     else {
-      console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+      console.log(
+        "Non-Ethereum browser detected. You should consider trying MetaMask!"
+      );
     }
     return App.initContracts();
   },
 
   initContracts: () => {
     $.getJSON("Verification.json", (contract) => {
-      console.log('contract', contract)
+      console.log("contract", contract);
       App.contracts.Verification = TruffleContract(contract);
       App.contracts.Verification.setProvider(App.web3Provider);
       return App.render();
@@ -69,58 +77,63 @@ App = {
     content.hide();
 
     // Load blockchain data
-    console.log(web3.eth.accounts)
+    console.log(web3.eth.accounts);
     App.account = web3.eth.accounts[0];
     console.log("Your Account:", App.account);
 
-    App.contracts.Verification.deployed().then((contract) => {
-      App.contractInstance = contract;
-      console.log("ContractInstance", App.contractInstance)
-      console.log("Contract Address:", App.contractInstance.address);
-      return true
-    }).then((val) => {
-      $('#account').html(App.account);
-      loader.hide();
-      content.show();
-    });
+    App.contracts.Verification.deployed()
+      .then((contract) => {
+        App.contractInstance = contract;
+        console.log("ContractInstance", App.contractInstance);
+        console.log("Contract Address:", App.contractInstance.address);
+        return true;
+      })
+      .then((val) => {
+        $("#account").html(App.account);
+        loader.hide();
+        content.show();
+      });
   },
 
-  signMessage: () => {
+  signMint: () => {
     $("#content").hide();
     $("#loader").show();
 
-    const message = web3.sha3( $('#message').val() )
-    console.log('message', message)
+    const message = web3.sha3($("#message").val());
+    console.log("message", message);
 
-    web3.eth.sign(App.account, message, function (err, result) {
-      console.log(err, result)
-      $('form').trigger('reset')
-      App.msg = message
-      $('#msg').html('message:' + ' ' + message)
-      App.signature = result
-      $('#signature').html('signature:' + ' ' + result)
-      $('#verify').show()
-      $("#content").show();
-      $("#loader").hide();
-      window.alert('Message signed!')
-    })
-  },
+    web3.eth.sign(App.account, message, function(err, result) {
+      $("form").trigger("reset");
+      App.msg = message;
+      App.signature = result;
+      App.contractInstance
+        .recover(App.msg, App.signature)
+        .then(function(result) {
+          console.log("Recover", result);
+          $("#address").html("This account signed the message:" + " " + result);
+          if (walletbook[x[0] - 1].Wallet !== result) {
+            walletbook.push({ Order: x[0], Wallet: result });
+            let table = document.querySelector("table");
+            generateTable(table, walletbook, x);
+            x[0] += 1;
+          } else {
+            $("#error").html(
+              "This wallet already signed nft maximum number of times(1)"
+            );
+          }
+        })
 
-  verify: () => {
-    $("#content").hide();
-    $("#loader").show();
-
-    App.contractInstance.recover(App.msg, App.signature).then(function(result) {
-      console.log('Recover', result)
-      $('#address').html('This account signed the message:' + ' ' + result)
-    }).catch((err) => {
-      console.error(err);
-      window.alert("There was an error recovering signature.")
+        .catch((err) => {
+          console.error(err);
+          window.alert("There was an error recovering signature.");
+        });
+      window.alert("wallet address is queued!");
     });
 
+    $("#verify").show();
     $("#content").show();
     $("#loader").hide();
-  }
+  },
 };
 
 $(() => {
@@ -128,3 +141,36 @@ $(() => {
     App.init();
   });
 });
+
+function generateTableHead(table, data, position) {
+  if (position === 1) {
+    let thead = table.createTHead();
+    let row = thead.insertRow();
+    for (let key of data) {
+      let th = document.createElement("th");
+      let text = document.createTextNode(key);
+      th.setAttribute("align", "center");
+      row.setAttribute("align", "center");
+      th.appendChild(text);
+      row.appendChild(th);
+    }
+  } else {
+    return;
+  }
+}
+
+function generateTable(table, data, position) {
+  let row = table.insertRow();
+  console.log(data[position[0]]);
+  let cell = row.insertCell();
+  let cell2 = row.insertCell();
+  let text = document.createTextNode(data[position[0]].Order);
+  let text2 = document.createTextNode(data[position[0]].Wallet);
+  cell.setAttribute("align", "center");
+  cell.appendChild(text);
+  cell2.setAttribute("align", "center");
+  cell2.appendChild(text2);
+}
+let table = document.querySelector("table");
+let data = Object.keys(walletbook[0]);
+generateTableHead(table, data, 1);

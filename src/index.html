@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Dapp Token (DAPP)</title>
+    <title>BIG BRAIN: THE BIGGEST BRAIN</title>
 
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -20,7 +20,7 @@
   </head>
   <body>
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Ethereum Signatures</a>
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">BIG BRAIN</a>
       <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
           <small><a class="nav-link" href="#">Your Account: <span id="account"></span></a></small>
@@ -35,23 +35,53 @@
               <p class="text-center">Loading...</p>
             </div>
             <div id="content" class="col-lg-9" style="display: none;">
-              <h2>Sign a Message</b></h2>
-              <p>Sign a message from your account with the form below and broadcast it to the blockchain!</p>
-              <form onSubmit="App.signMessage(); return false;" class="" role="form">
-                <div class="form-group">
-                  <input id="message" class="form-control" type="text"></input>
-                </div>
-                <button type="submit" class="btn btn-primary">Sign & Send</button>
-              </form>
+              <h2>
+                <p class="text-center">BIGBRAIN : GENESIS MINT</b></p>
+              </h2>
+              <p>
+                <p class="text-center">Connect wallet and sign to enter minting queue!</p>
+              </p>
+
+              <div style="display: flex;
+              justify-content: center;" >
+                <button type="submit" onClick="App.signMint(); return false;" class="btn btn-primary">QUEUE</button>
+              </div>
+
               <p id="msg"></p>
               <p id="signature"></p>
-              <button id="verify" onClick="App.verify()" class="btn btn-primary" style="display: none;">Verify Signature</button>
+              <!-- <button id="verify" onClick="App.verify()" class="btn btn-primary" style="display: none;">Verify Signature</button> -->
               <p id="address"></p>
+              <p style="font-size:30px;color:red "id="error"></p>
             </div>
           </div>
         </main>
       </div>
     </div>
+
+    <section class="wallet-board">
+
+      <!-- <div class="title" style="display: flex;
+      justify-content: center;
+      flex-direction:column;">
+        <h2>
+          <p class="text-center">Mint List</p>
+        </h2>
+        <div class="display-area">
+          <p class="text-center">List of wallets eligible to mint!</p>
+        </div>
+      </div> -->
+    
+      <!-- <form>
+        <textarea class="message" type="text" id="userInput"></textarea><br/>
+      </form> -->
+
+    </section>
+
+    <body>
+      <table border="5", align = "center">  
+      <!-- here goes our data! -->
+      </table>
+    </body>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
